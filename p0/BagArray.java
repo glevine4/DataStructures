@@ -3,17 +3,19 @@
 
 public class BagArray implements Bag {
 
-    /* Data members of my class.
-     */
-    private Object[] array;  // holds the items
-    private int size;   // actual number of items
+    /** Default starting size. */
+    public static final int SIZE = 10;
 
-    public static final int SIZE = 10;   // default starting size
+    /* Data members of my class. */
+    /** Holds the items. */
+    private Object[] array;
+    /** Actual number of items. */
+    private int size;
 
     /** Make an empty bag of a standard capacity.
      */
     public BagArray() {
-        clear();
+        this.clear();
     }
 
     /**
@@ -21,7 +23,7 @@ public class BagArray implements Bag {
      */
     public void clear() {
         this.array = new Object[SIZE];
-        this.size = 0; 
+        this.size = 0;
     }
 
 
@@ -31,16 +33,17 @@ public class BagArray implements Bag {
      */
     public void add(Object o) {
         // check if array is full
-        if (size == this.array.length) {
+        if (this.size == this.array.length) {
             // resize: double the current size
-            Object[] temp = new Object[size*2];
+            Object[] temp = new Object[this.size * 2];
             // lookup System.arraycopy(...)
-            for (int i=0; i < size; i++)
+            for (int i = 0; i < this.size; i++) {
                 temp[i] = this.array[i];
-            array = temp;
+            }
+            this.array = temp;
         }
         // actual adding of the new item
-        this.array[size++] = o;
+        this.array[this.size++] = o;
     }
 
     /**
@@ -57,13 +60,15 @@ public class BagArray implements Bag {
     }
 
     /**
+     * The remove function.
+     * @param o an object to remove.
+     * @return the object removed.
      */
     public Object remove(Object o) {
-        int where = find(o);
+        int where = this.find(o);
         if (where == -1) {
             return null;
-        }
-        else {
+        } else {
             Object temp = this.array[where];
             this.size--;
             this.array[where] = this.array[this.size];
@@ -78,17 +83,21 @@ public class BagArray implements Bag {
        @return the index of the first occurrence, or -1 if it's not there.
     */
     private int find(Object o) {
-        for (int i=0; i < this.size; i++) {
-            if (this.array[i].equals(o))
+        for (int i = 0; i < this.size; i++) {
+            if (this.array[i].equals(o)) {
                 return i;
+            }
         }
         return -1;
     }
 
     /**
+     * The contains function.
+     * @param o an object.
+     * @return a boolean.
      */
     public boolean contains(Object o) {
-        return find(o) != -1;
+        return this.find(o) != -1;
     }
 
     /**
@@ -107,11 +116,15 @@ public class BagArray implements Bag {
         return this.size == 0;
     }
 
+    /**
+     * The toString method.
+     * @return string.
+     */
     public String toString() {
         String result = "(";
-        for (int i=0; i < this.size; i++) {
+        for (int i = 0; i < this.size; i++) {
             result += this.array[i];   // calls toString implicitly
-            if (i < this.size-1) {
+            if (i < this.size - 1) {
                 result += ", ";
             }
         }
