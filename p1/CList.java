@@ -1,8 +1,11 @@
-/** Circular Linked List implementation of the List interface.
- * There is no designated Head or Tail, only the current element.
+/**
+ * @author Gregory Levine and Matthew Saltzman
+ * 600.226 Data Structures
+ * Section 01
+ * Assignment P1
  *
- * @author Gregory Levine
- * @param <T> the type of the List
+ * Circular Linked List implementation of the List interface.
+ * @param <T> the type that will be held in the list.
  */
 public class CList<T> implements List<T> {
 
@@ -39,7 +42,7 @@ public class CList<T> implements List<T> {
     /** Keeps track of the head of the circular list. */
     private Node head;
     /** Keeps track of the position in the circular list. */
-    private int pos;
+    private int position;
 
     /**
      * Create an empty list with sentinels.
@@ -55,7 +58,7 @@ public class CList<T> implements List<T> {
         this.size = 0;
         this.curr = null;
         this.head = null;
-        this.pos = -1;
+        this.position = 0;
     }
 
     /**
@@ -65,17 +68,21 @@ public class CList<T> implements List<T> {
      * @return true if successfully inserted, false otherwise
      */
     public boolean insert(T t) {
-        if (this.size == 0) {
+        if (this.size <= 0) {
             this.curr = new Node(t, null, null);
             this.curr.prev = this.curr;
             this.curr.next = this.curr;
             this.head = this.curr;
-            this.size++;
+            this.position = 0;
+            this.size = 1;
         } else {
             Node n = new Node(t, this.curr, this.curr.next);
             n.prev.next = n;   // connect left neighbor
             n.next.prev = n;   // connect right neighbor
             this.size++;
+        }
+        if (this.curr == this.head.prev.prev) {
+            this.head = this.curr.next;
         }
         return true;
     }
@@ -91,8 +98,9 @@ public class CList<T> implements List<T> {
             this.insert(t);
         } else {
             Node n = new Node(t, this.head.prev, this.head);
+            n.next.prev = n;  //connect right neighbor
+            this.curr = this.curr.next.prev;
             n.prev.next = n;   // connect left neighbor
-            n.next.prev = n;   // connect right neighbor
             this.size++;
         }
         return true;
@@ -103,20 +111,26 @@ public class CList<T> implements List<T> {
      * @return the value of the element removed, null if list is empty
      */
     public T remove() {
+        if (this.curr == null) {
+            return null;
+        }
         if (this.curr.next == this.head) {
-            this.head == this.head.next;
+            this.head = this.head.next;
         }
         if (this.isAtEnd()) {
-            pos = 0;
+            this.position = 0;
         }
         if (this.size > 1) {
             T val = this.curr.next.data;
             this.curr.next = this.curr.next.next;  // bypass node being deleted
-            this.curr.next.prev = this.curr;       // bypass it in other direction
+            this.curr.next.prev = this.curr;     // bypass it in other direction
             this.size--;
             return val;
-        } else {
+        } else if (this.size == 1) {
+            T val = this.curr.data;
             this.clear();
+            return val;
+        } else {
             return null;
         }
     }
@@ -126,6 +140,9 @@ public class CList<T> implements List<T> {
      * @return the value of the current element, null if none
      */
     public T getValue() {
+        if (this.curr == null) {
+            return null;
+        }
         return this.curr.next.data;
     }
 
@@ -141,38 +158,40 @@ public class CList<T> implements List<T> {
      * Set the current position to the start of the list.
      */
     public void moveToStart() {
-        this.curr = this.head.prev;
-        this.pos = 0;
+        if (this.curr != null) {
+            this.curr = this.head.prev;
+            this.position = 0;
+        }
     }
 
     /**
      * Set the current position to the last node.
      */
     public void moveToEnd() {
-        this.curr = this.head.prev.prev;
-        this.pos = this.size - 1;
+        if (this.curr != null) {
+            this.curr = this.head.prev.prev;
+            this.position = this.size - 1;
+        }
     }
 
     /**
      * Move the current position one step left.
      */
     public void prev() {
-        this.pos--;
-        if (this.pos < 0) {
-            this.pos = this.size - 1;
+        if ((this.curr != null) && (this.curr.next != this.head)) {
+            this.position--;
+            this.curr = this.curr.prev;
         }
-        this.curr = this.curr.prev;
     }
 
     /**
      * Move the current position one step right.
      */
     public void next() {
-        this.pos++;
-        if (this.pos == this.size) {
-            this.pos = 0;
+        if ((this.curr != null) && (this.curr.next != this.head.prev)) {
+            this.position++;
+            this.curr = this.curr.next;
         }
-        this.curr = this.curr.next;
     }
 
     /**
@@ -180,7 +199,7 @@ public class CList<T> implements List<T> {
      * @return the current position in the list
      */
     public int currPos() {
-        return this.pos;
+        return this.position;
     }
 
     /**
@@ -192,13 +211,11 @@ public class CList<T> implements List<T> {
         if (pos >= this.size || pos < 0) {
             return false;
         }
-        while (pos > this.pos) {
-            this.prev();
-            pos--;
-        }
-        while (pos < this.pos) {
+        while (pos > this.position) {
             this.next();
-            pos++;
+        }
+        while (pos < this.position) {
+            this.prev();
         }
         return true;
     }
@@ -212,5 +229,52 @@ public class CList<T> implements List<T> {
             return false;
         }
         return this.curr == this.head.prev.prev;
+    }
+
+    /**
+     * Outputs a string representation of the list.
+     * @return a string representation of the list.
+     */
+    public String toString() {
+        if (this.curr == null) {
+            return "[]";
+        }
+        Node val = this.head;
+        String output = "";
+        output += "[ ";
+        for (int i = 0; i < this.size; i++) {
+            output += val.data.toString() + " ";
+            val = val.next;
+        }
+        output += "]";
+        return output;
+    }
+
+    /* Some Bonus Methods that are not part of the List interface */
+
+    /**
+     * Same as next, but circles around instead of stopping at the tail node.
+     */
+    public void cNext() {
+        if (this.curr != null) {
+            this.curr = this.curr.next;
+            this.position++;
+        }
+        if (this.position == this.size) {
+            this.position = 0;
+        }
+    }
+
+    /**
+     * Same as prev, but circles around instead of stopping at the head node.
+     */
+    public void cPrev() {
+        if (this.curr != null) {
+            this.curr = this.curr.prev;
+            this.position--;
+        }
+        if (this.position == -1) {
+            this.position = this.size - 1;
+        }
     }
 }
