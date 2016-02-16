@@ -1,8 +1,11 @@
 /**
  * @author Gregory Levine and Matthew Saltzman
+ * Due: February 17, 2016
  * 600.226 Data Structures
  * Section 01
  * Assignment P1
+ * glevine4@jhu.edu
+ * msaltzm5@jhu.edu
  *
  * Represents a Cooking Item.
  */

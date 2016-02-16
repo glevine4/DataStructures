@@ -1,3 +1,6 @@
+/**
+ * The interface provided for Cooking Item in the assignment description.
+ */
 interface CookingItemInterface {
     /** Implements a simulation of one minute of time for this item by
      *  decrementing cooking time by one minute.

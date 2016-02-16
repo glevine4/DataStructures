@@ -1,3 +1,6 @@
+/**
+ * The cooking station interface provided in the assignment description.
+ */
 interface CookingStationInterface {
 
     /** Put a new dish at the end of the station.

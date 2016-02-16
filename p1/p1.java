@@ -2,24 +2,31 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.FileNotFoundException;
+import java.util.InputMismatchException;
+import java.util.NoSuchElementException;
 
 /**
  * @author Gregory Levine and Matthew Saltzman
+ * Due: February 17, 2016
  * 600.226 Data Structures
  * Section 01
  * Assignment P1
+ * glevine4@jhu.edu
+ * msaltzm5@jhu.edu
  *
  * Simulates the Cutthroat Kitchen game.
  */
-public final class CutthroatKitchenSimulation {
+public final class p1 {
+
     /** A list to hold the stations. */
     private static CList<CookingStation> stations;
+    /** A scanner to read the input file. */
     private static Scanner in = null;
 
     /**
      * Hides Constructor.
      */
-    private CutthroatKitchenSimulation() {
+    private p1() {
     }
 
     /**
@@ -27,23 +34,25 @@ public final class CutthroatKitchenSimulation {
      * @param args contains the command line arguments
      */
     public static void main(String[] args) {
+        //checks that there is eactly 1 input argument from the command line
         if (args.length != 1) {
             System.err.println("Invalid Number of Input Arguments");
+            System.exit(0);
         }
+        //sets up the scanner object to read from the file, and creates
+        //the initial datastructure
         setupScanner(args[0]);
         readFile();
-        PrintStream sim0 = null,
-                    sim1 = null,
-                    sim2 = null,
-                    simP = null;
-
+        //declares PrintStreams for the output files
+        PrintStream sim0 = null, sim1 = null, sim2 = null, simP = null;
+        //initializes the printstreams
         try {
             sim0 = new PrintStream(new File("sim0.txt"));
             sim1 = new PrintStream(new File("sim1.txt"));
             sim2 = new PrintStream(new File("sim2.txt"));
             simP = new PrintStream(new File("simP.txt"));
         } catch (FileNotFoundException e) {
-
+            System.err.println("There was an error creating the output files.");
         }
         // Run simulation with 0 as the removeThreshold
         runSim(sim0, 0, 0);
@@ -55,7 +64,8 @@ public final class CutthroatKitchenSimulation {
         setupScanner(args[0]);
         readFile();
         runSim(sim2, 2, 0);
-        // Run simulation with 0 as the removeThreshold
+        // Run simulation with our own parameters to utilize our algorithm
+        // for using the penaltyThreshold
         setupScanner(args[0]);
         readFile();
         runSim(simP, 2, 2);
@@ -69,22 +79,34 @@ public final class CutthroatKitchenSimulation {
      * Reads the input file.
      */
     private static void readFile() {
-        stations = new CList<CookingStation>();
-        while (in.hasNextLine()) {
-            stations.append(new CookingStation(in.nextLine()));
-            stations.moveToEnd();
+        try {
+            stations = new CList<CookingStation>();
             while (in.hasNextLine()) {
-                String str = in.nextLine();
-                Scanner line = new Scanner(str);
-                if (str.trim().equals("")) {
-                    break;
+                stations.append(new CookingStation(in.nextLine()));
+                stations.moveToEnd();
+                while (in.hasNextLine()) {
+                    String str = in.nextLine();
+                    Scanner line = new Scanner(str);
+                    if (str.trim().equals("")) {
+                        break;
+                    }
+                    String name = line.next();
+                    int time = 0, under = 0, over = 0;
+                    try {
+                        time = line.nextInt();
+                        under = line.nextInt();
+                        over = line.nextInt();
+                    } catch (InputMismatchException e) {
+                        System.err.println("Invalid input file formatting.");
+                        System.exit(0);
+                    }
+                    stations.getValue().addItem(new CookingItem(name,
+                        time, under, over));
                 }
-                String name = line.next();
-                int time = line.nextInt(), under = line.nextInt(),
-                    over = line.nextInt();
-                stations.getValue().addItem(new CookingItem(name,
-                    time, under, over));
             }
+        } catch (NoSuchElementException f) {
+            System.err.println("Invalid input file formatting.");
+            System.exit(0);
         }
     }
 
